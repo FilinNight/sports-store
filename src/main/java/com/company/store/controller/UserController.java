@@ -14,13 +14,12 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api")
-@Tag(name = "Main controller", description = "It's got all methods API")
-public class MainController {
-
+@Tag(name = "User controller")
+public class UserController {
 
     private final UserRepository userRepository;
 
-    public MainController(UserRepository userRepository) {
+    public UserController(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 
