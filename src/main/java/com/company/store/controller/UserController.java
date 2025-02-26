@@ -23,7 +23,7 @@ public class UserController {
         this.userRepository = userRepository;
     }
 
-    @PreAuthorize("hasAnyRole('ROLE_VIEWER', 'ROLE_ADMINISTRATOR')")
+    @PreAuthorize("hasAnyRole('ROLE_VIEWER', 'ROLE_ADMINISTRATOR', 'ROLE_CUSTOMER')")
     @GetMapping("/users")
     @Operation(summary = "Get all users")
     public Response<List<User>> getUsers() {
