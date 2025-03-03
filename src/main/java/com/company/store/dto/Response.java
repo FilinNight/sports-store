@@ -9,18 +9,39 @@ public class Response<T> {
     private String error = null;
     private Integer status = 200;
 
-    public Response(T value) {
-        this.value = value;
+    private Response() {
     }
 
-    public Response(T value, Integer status) {
-        this.value = value;
-        this.status = status;
+    public static <T> Response<T> ok(T value) {
+        Response<T> response = new Response<>();
+        response.value = value;
+        return response;
     }
 
-    public Response(String error, Integer status) {
-        this.isSuccessful = false;
-        this.error = error;
-        this.status = status;
+    public static <T> Response<T> ok(T value, Integer status) {
+        Response<T> response = new Response<>();
+        response.value = value;
+        response.status = status;
+        return response;
+    }
+
+    public static <T> Response<T> error(Exception e) {
+        Response<T> response = new Response<>();
+        response.error = getErrorMessage(e);
+        response.status = 400;
+        response.isSuccessful = false;
+        return response;
+    }
+
+    public static <T> Response<T> error(Exception e, Integer status) {
+        Response<T> response = new Response<>();
+        response.error = getErrorMessage(e);;
+        response.status = status;
+        response.isSuccessful = false;
+        return response;
+    }
+
+    private static String getErrorMessage(Exception e) {
+        return "[" + e.getMessage() + "]: " + e.getMessage();
     }
 }

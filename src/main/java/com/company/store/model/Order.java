@@ -4,21 +4,32 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
 @Setter
 @Entity
-@Table(name = "order")
+@Table(name = "`order`")
 public class Order extends BaseEntity {
 
     @OneToOne(fetch = FetchType.LAZY)
+    private Customer customer;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     private Payment payment;
 
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(name = "order_product",
-            joinColumns = @JoinColumn(name = "order_id"),
-            inverseJoinColumns = @JoinColumn(name = "archive_product_id")
-    )
-    private List<ArchiveProduct> products;
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "order")
+    private List<ProductHistory> products = new ArrayList<>();
+
+    @Column(nullable = false)
+    private BigDecimal totalPrice;
+
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private OrderStatus status;
+
+    @Column
+    private String errorMessage;
 }

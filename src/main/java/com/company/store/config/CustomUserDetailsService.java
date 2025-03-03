@@ -1,4 +1,4 @@
-package com.company.store.service.impl;
+package com.company.store.config;
 
 import com.company.store.model.User;
 import com.company.store.repository.UserRepository;
@@ -30,10 +30,11 @@ public class CustomUserDetailsService implements UserDetailsService {
                 .map(role -> new SimpleGrantedAuthority(role.getType().name()))
                 .collect(Collectors.toList());
 
-        return new org.springframework.security.core.userdetails.User(
+        UserDetails userDetails = new org.springframework.security.core.userdetails.User(
                 user.getUsername(),
                 user.getPassword(),
                 authorities
         );
+        return new CustomUserDetails(userDetails, user.getId());
     }
 }

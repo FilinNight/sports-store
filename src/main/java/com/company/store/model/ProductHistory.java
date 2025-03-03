@@ -1,9 +1,6 @@
 package com.company.store.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -12,11 +9,14 @@ import java.math.BigDecimal;
 @Getter
 @Setter
 @Entity
-@Table(name = "archive_product")
-public class ArchiveProduct extends BaseEntity {
+@Table(name = "product_history")
+public class ProductHistory extends BaseEntity {
 
-    @ManyToOne
-    private Product product;
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    private Order order;
+
+    @Column(nullable = false)
+    private Long productId;
 
     @Column(nullable = false)
     private String name;
@@ -32,4 +32,7 @@ public class ArchiveProduct extends BaseEntity {
 
     @Column(nullable = false)
     private BigDecimal price;
+
+    @Column(nullable = false)
+    private BigDecimal totalPrice;
 }

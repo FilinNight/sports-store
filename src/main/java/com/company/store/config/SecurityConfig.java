@@ -1,6 +1,5 @@
 package com.company.store.config;
 
-import com.company.store.service.impl.CustomUserDetailsService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
@@ -29,11 +28,14 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
+                                "/api/products/**",
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",
                                 "/swagger-ui.html"
                         )
                         .permitAll()
+                        .requestMatchers("/api/**")
+                        .hasRole("ADMINISTRATOR")
                         .anyRequest().authenticated()
                 )
                 .userDetailsService(customUserDetailsService)

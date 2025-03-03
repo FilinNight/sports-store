@@ -71,7 +71,7 @@
                 <constraints nullable="false"/>
             </column>
 
-            <column name="company_id" type="bigint">
+            <column name="company_id" type="BIGINT">
                 <constraints nullable="false"/>
             </column>
             <column name="article" type="VARCHAR(255)">
@@ -102,19 +102,19 @@
 
     <changeSet id="20250130.13:50.4" author="a.hatouchits">
         <createTable tableName="cart">
-            <column name="id" type="bigint" autoIncrement="true">
+            <column name="id" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
-            <column name="customer_id" type="bigint">
+            <column name="customer_id" type="BIGINT">
                 <constraints nullable="false" unique="true"/>
             </column>
         </createTable>
 
         <createTable tableName="cart_product">
-            <column name="cart_id" type="bigint">
+            <column name="cart_id" type="BIGINT">
                 <constraints nullable="false"/>
             </column>
-            <column name="product_id" type="bigint">
+            <column name="product_id" type="BIGINT">
                 <constraints nullable="false"/>
             </column>
         </createTable>
@@ -177,6 +177,9 @@
                 <constraints nullable="false"/>
             </column>
 
+            <column name="customer_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
             <column name="payment_id" type="BIGINT">
                 <constraints nullable="false"/>
             </column>
@@ -192,6 +195,13 @@
         </createTable>
 
         <addForeignKeyConstraint
+                constraintName="fk_order_customer"
+                baseTableName="order"
+                baseColumnNames="customer_id"
+                referencedTableName="customer"
+                referencedColumnNames="id"
+                onDelete="CASCADE"/>
+        <addForeignKeyConstraint
                 constraintName="fk_order_payment"
                 baseTableName="order"
                 baseColumnNames="payment_id"
@@ -201,7 +211,7 @@
     </changeSet>
 
     <changeSet id="20250130.13:50.7" author="a.hatouchits">
-        <createTable tableName="archive_product">
+        <createTable tableName="product_history">
             <column name="id" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
@@ -212,6 +222,9 @@
                 <constraints nullable="false"/>
             </column>
 
+            <column name="order_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
             <column name="product_id" type="BIGINT">
                 <constraints nullable="false"/>
             </column>
@@ -224,43 +237,22 @@
             <column name="quantity" type="INT">
                 <constraints nullable="false"/>
             </column>
+            <column name="article" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
             <column name="price" type="DECIMAL(10,2)">
                 <constraints nullable="false"/>
             </column>
-        </createTable>
-
-        <addForeignKeyConstraint
-                constraintName="fk_archive_product_product"
-                baseTableName="archive_product"
-                baseColumnNames="product_id"
-                referencedTableName="product"
-                referencedColumnNames="id"
-                onDelete="CASCADE"/>
-    </changeSet>
-
-    <changeSet id="20250130.13:50.8" author="a.hatouchits">
-        <createTable tableName="order_product">
-            <column name="order_id" type="BIGINT">
-                <constraints nullable="false"/>
-            </column>
-            <column name="archive_product_id" type="BIGINT">
+            <column name="total_price" type="DECIMAL(10,2)">
                 <constraints nullable="false"/>
             </column>
         </createTable>
 
         <addForeignKeyConstraint
-                constraintName="fk_order_product_order"
-                baseTableName="order_product"
+                constraintName="fk_product_history_order"
+                baseTableName="product_history"
                 baseColumnNames="order_id"
                 referencedTableName="order"
-                referencedColumnNames="id"
-                onDelete="CASCADE"/>
-
-        <addForeignKeyConstraint
-                constraintName="fk_order_product_archive_product"
-                baseTableName="order_product"
-                baseColumnNames="archive_product_id"
-                referencedTableName="archive_product"
                 referencedColumnNames="id"
                 onDelete="CASCADE"/>
     </changeSet>
