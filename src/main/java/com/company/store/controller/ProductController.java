@@ -2,6 +2,7 @@ package com.company.store.controller;
 
 import com.company.store.dto.ProductDto;
 import com.company.store.dto.Response;
+import com.company.store.mapping.Mapper;
 import com.company.store.service.ProductService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -26,7 +27,10 @@ public class ProductController {
     @Operation(summary = "Get all products")
     public Response<List<ProductDto>> getAllProducts() {
         try {
-            return Response.ok(productService.getAllProducts());
+            List<ProductDto> products = productService.getAllProducts().stream()
+                    .map(Mapper::toProductDto)
+                    .toList();
+            return Response.ok(products);
         } catch (Exception e) {
             return Response.error(e);
         }

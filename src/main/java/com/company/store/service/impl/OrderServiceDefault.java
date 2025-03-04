@@ -1,7 +1,6 @@
 package com.company.store.service.impl;
 
 import com.company.store.dto.OrderData;
-import com.company.store.dto.OrderDto;
 import com.company.store.dto.PaymentRequest;
 import com.company.store.dto.PaymentResponse;
 import com.company.store.mapping.Mapper;
@@ -13,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Set;
 
 
 @Service
@@ -39,8 +39,8 @@ public class OrderServiceDefault implements OrderService {
     }
 
     @Override
-    public OrderDto getOrderById(Long id) {
-        return Mapper.toOrderDto(findUnsafe(id));
+    public Order getOrderById(Long id) {
+        return findUnsafe(id);
     }
 
     @Override
@@ -51,15 +51,13 @@ public class OrderServiceDefault implements OrderService {
     }
 
     @Override
-    public List<OrderDto> getAllOrders() {
-        return orderRepository.findAll().stream()
-                .map(Mapper::toOrderDto)
-                .toList();
+    public List<Order> getAllOrders() {
+        return orderRepository.findAll();
     }
 
     @Override
     @Transactional
-    public OrderDto createOrder(OrderData orderDate, Long userId) {
+    public Order createOrder(OrderData orderDate, Long userId) {
         Order order = initOrder(orderDate, userId);
         List<ProductHistory> productHistoryList = productService.saveProductsHistory(orderDate, order);
         BigDecimal totalPrice = productHistoryList.stream()
@@ -67,7 +65,7 @@ public class OrderServiceDefault implements OrderService {
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
         order.setTotalPrice(totalPrice);
         order.getProducts().addAll(productHistoryList);
-        return Mapper.toOrderDto(orderRepository.save(order));
+        return orderRepository.save(order);
     }
 
     private Order initOrder(OrderData orderDate, Long userId) {
@@ -76,17 +74,30 @@ public class OrderServiceDefault implements OrderService {
         Payment payment = paymentService.getPaymentByType(orderDate.getType());
         order.setCustomer(customer);
         order.setPayment(payment);
-        order.setStatus(OrderStatus.CREATE);
+        order.setStatus(OrderStatus.CREATED);
         order.setTotalPrice(BigDecimal.ZERO);
         return orderRepository.save(order);
     }
 
     @Override
+    public Order confirmOrder(Long orderId, Long userId) {
+        Order order = findUnsafe(orderId);
+        verificationUser(order, userId);
+        if (order.getStatus() != OrderStatus.CREATED) {
+            throw new IllegalArgumentException("Order " + order.getId() + " cannot be confirm.");
+        }
+        order.setStatus(OrderStatus.CONFIRMED);
+        productService.subtractQuantity(order);
+        return orderRepository.save(order);
+    }
+
+    @Override
     @Transactional
-    public void payOrder(Long id) {
-        Order order = findUnsafe(id);
-        if (order.getStatus() != OrderStatus.CREATE) {
-            throw new IllegalArgumentException("Order " + order.getId() + " Status is not equal CREATE");
+    public Order payOrder(Long orderId, Long userId) {
+        Order order = findUnsafe(orderId);
+        verificationUser(order, userId);
+        if (order.getStatus() != OrderStatus.PAYMENT_PENDING) {
+            throw new IllegalArgumentException("Order " + order.getId() + " cannot be pay.");
         }
         PaymentRequest paymentRequest = new PaymentRequest();
         paymentRequest.setOrder(Mapper.toOrderDto(order));
@@ -97,14 +108,34 @@ public class OrderServiceDefault implements OrderService {
 
         switch (response.getStatus()) {
             case PAID -> {
-                order.setStatus(OrderStatus.COMPLETED);
+                order.setStatus(OrderStatus.PAID);
             }
             case ERROR -> {
-                order.setStatus(OrderStatus.ERROR);
+                order.setStatus(OrderStatus.PAYMENT_FAILED);
                 order.setErrorMessage(response.getErrorMessage());
                 productService.returnQuantity(order);
             }
         }
+        return orderRepository.save(order);
     }
 
+    @Override
+    public Order cancelOrder(Long orderId, Long userId) {
+        Order order = findUnsafe(orderId);
+        verificationUser(order, userId);
+        Set<OrderStatus> statuses = Set.of(OrderStatus.CREATED, OrderStatus.CONFIRMED);
+        if (statuses.stream().anyMatch(orderStatus -> orderStatus.equals(order.getStatus()))) {
+            throw new IllegalArgumentException("Order " + order.getId() + " cannot be cancel");
+        }
+        order.setStatus(OrderStatus.CANCELLED);
+        productService.returnQuantity(order);
+        return orderRepository.save(order);
+    }
+
+    private void verificationUser(Order order, Long userId) {
+        Customer customer = customerService.getCustomerByUserId(userId);
+        if (order.getCustomer().getId() != customer.getId()) {
+            throw new IllegalArgumentException("Incorrect customer for Order " + order.getId());
+        }
+    }
 }

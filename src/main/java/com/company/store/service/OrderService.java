@@ -1,21 +1,25 @@
 package com.company.store.service;
 
 import com.company.store.dto.OrderData;
-import com.company.store.dto.OrderDto;
+import com.company.store.model.Order;
 import com.company.store.model.OrderStatus;
 
 import java.util.List;
 
 public interface OrderService {
 
-    OrderDto getOrderById(Long id);
+    Order getOrderById(Long id);
 
     List<Long> getOrdersIdsByStatus(OrderStatus status);
 
-    List<OrderDto> getAllOrders();
+    List<Order> getAllOrders();
 
-    OrderDto createOrder(OrderData orderRequest, Long userId);
+    Order createOrder(OrderData orderData, Long userId);
 
-    void payOrder(Long id);
+    Order confirmOrder(Long orderId, Long userId);
+
+    Order payOrder(Long orderId, Long userId);
+
+    Order cancelOrder(Long orderId, Long userId);
 
 }

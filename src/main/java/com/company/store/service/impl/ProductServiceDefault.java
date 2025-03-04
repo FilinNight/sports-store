@@ -2,8 +2,6 @@ package com.company.store.service.impl;
 
 import com.company.store.dto.OrderData;
 import com.company.store.dto.OrderProductData;
-import com.company.store.dto.ProductDto;
-import com.company.store.mapping.Mapper;
 import com.company.store.model.Order;
 import com.company.store.model.Product;
 import com.company.store.model.ProductHistory;
@@ -36,10 +34,8 @@ public class ProductServiceDefault implements ProductService {
     }
 
     @Override
-    public List<ProductDto> getAllProducts() {
-        return productRepository.findAll().stream()
-                .map(Mapper::toProductDto)
-                .toList();
+    public List<Product> getAllProducts() {
+        return productRepository.findAll();
     }
 
     @Override

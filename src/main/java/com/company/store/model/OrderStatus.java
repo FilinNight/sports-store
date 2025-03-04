@@ -1,9 +1,10 @@
 package com.company.store.model;
 
 public enum OrderStatus {
-    CREATE,
-    PROCESSING,
-    COMPLETED,
-    CANCELED,
-    ERROR
+    CREATED,
+    CONFIRMED,
+    PAYMENT_PENDING,
+    PAID,
+    PAYMENT_FAILED,
+    CANCELLED
 }
