@@ -1,7 +1,9 @@
 version: '3.8'
 
-services:
+networks:
+  notification-network:
 
+services:
   notification-mysql:
     image: mysql:8.0
     container_name: notification_mysql
@@ -12,9 +14,11 @@ services:
       MYSQL_USER: admin
       MYSQL_PASSWORD: admin
     ports:
-      - "3307:3307"
+      - "3307:3306"
     volumes:
-      - notification_db_data:/var/lib/mysql
+      - db_data:/var/lib/mysql
+    networks:
+      - notification-network
 
   notification-app:
     build:
@@ -23,13 +27,15 @@ services:
     container_name: notification_app
     restart: always
     ports:
-      - "8090:8090"
+      - "8091:8091"
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3307/notification
+      SPRING_DATASOURCE_URL: jdbc:mysql://notification-mysql:3306/notification
       SPRING_DATASOURCE_USERNAME: admin
       SPRING_DATASOURCE_PASSWORD: admin
     depends_on:
       - notification-mysql
+    networks:
+      - notification-network
 
 volumes:
-  notification_db_data:
+  db_data:
