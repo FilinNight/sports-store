@@ -6,20 +6,18 @@ import com.company.notification.model.NotificationStatus;
 import com.company.notification.repository.NotificationRepository;
 import com.company.notification.service.NotificationService;
 import jakarta.transaction.Transactional;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 @Service
+@AllArgsConstructor
 public class NotificationServiceDefault implements NotificationService {
 
     private final NotificationRepository notificationRepository;
 
-    public NotificationServiceDefault(NotificationRepository notificationRepository) {
-        this.notificationRepository = notificationRepository;
-    }
-
     @Override
     @Transactional
-    public void sendNotification(NotificationDto notificationDto) {
+    public void createNotification(NotificationDto notificationDto) {
         Notification notification = toNotification(notificationDto);
         notification.setStatus(NotificationStatus.PENDING);
         notificationRepository.save(notification);

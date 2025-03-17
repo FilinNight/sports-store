@@ -9,6 +9,7 @@ import com.company.store.repository.ProductHistoryRepository;
 import com.company.store.repository.ProductRepository;
 import com.company.store.service.ProductService;
 import jakarta.transaction.Transactional;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -16,17 +17,11 @@ import java.util.List;
 
 
 @Service
+@AllArgsConstructor
 public class ProductServiceDefault implements ProductService {
 
     private final ProductRepository productRepository;
-
     private final ProductHistoryRepository productHistoryRepository;
-
-    ProductServiceDefault(ProductRepository productRepository,
-                          ProductHistoryRepository productHistoryRepository) {
-        this.productRepository = productRepository;
-        this.productHistoryRepository = productHistoryRepository;
-    }
 
     private Product findUnsafe(Long id) {
         return productRepository.findById(id)

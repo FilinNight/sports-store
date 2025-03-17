@@ -8,6 +8,7 @@ import com.company.store.model.*;
 import com.company.store.repository.OrderRepository;
 import com.company.store.service.*;
 import jakarta.transaction.Transactional;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -16,22 +17,14 @@ import java.util.Set;
 
 
 @Service
+@AllArgsConstructor
 public class OrderServiceDefault implements OrderService {
 
     private final OrderRepository orderRepository;
     private final CustomerService customerService;
     private final ProductService productService;
     private final PaymentService paymentService;
-
-    OrderServiceDefault(OrderRepository orderRepository,
-                        CustomerService customerService,
-                        ProductService productService,
-                        PaymentService paymentService) {
-        this.orderRepository = orderRepository;
-        this.customerService = customerService;
-        this.productService = productService;
-        this.paymentService = paymentService;
-    }
+    private final NotificationService notificationService;
 
     private Order findUnsafe(Long id) {
         return orderRepository.findById(id)
@@ -65,7 +58,9 @@ public class OrderServiceDefault implements OrderService {
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
         order.setTotalPrice(totalPrice);
         order.getProducts().addAll(productHistoryList);
-        return orderRepository.save(order);
+        order = orderRepository.save(order);
+        notificationService.sendNotificationByCreateOrder(order);
+        return order;
     }
 
     private Order initOrder(OrderData orderDate, Long userId) {
